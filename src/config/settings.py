@@ -79,7 +79,7 @@ DATABASES = {
         'USER': 'gym_admin',
         'PASSWORD': 'gym_password123',
         'HOST': 'localhost',
-        'PORT': '5432',
+        'PORT': '5433',
     }
 }
 
