@@ -1,17 +1,21 @@
-from src.gym_core.models import MuscularArea, Machine, Exercise
+from gym_core.models import MuscularArea, Machine, Exercise
 
 
-def save_exercise(name: str, description: str, muscular_area: MuscularArea, machine: Machine):
+def save_exercise(name: str, description: str, muscular_area: str , machine: str):
     return Exercise.objects.create(
         name=name,
         description=description,
-        muscular_area=muscular_area,
-        machine=machine
+        muscular_area=MuscularArea.objects.get(name=muscular_area),
+        machine=Machine.objects.get(name=machine)
     )
-def get_exercise_by_name(name: str) -> Exercise:
-    return Exercise.objects.get(name=name)
+def get_exercise_by_name(name: str):
+    return Exercise.objects.filter(name=name).first()
 
-def save_machine(name: str) -> Machine:
+def get_exercises_by_machine(machine: str):
+    return Exercise.objects.filter(machine=Machine.objects.get(name=machine))
+
+def save_machine(name: str):
     return Machine.objects.create(name=name)
-def get_machine_by_name(name: str) -> Machine:
-    return Machine.objects.get(name=name)
+
+def get_machine_by_name(name: str):
+    return Machine.objects.filter(name=name).first()
