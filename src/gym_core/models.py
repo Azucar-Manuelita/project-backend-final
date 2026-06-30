@@ -144,12 +144,15 @@ class PlanRoutine(models.Model):
 
 
 class WorkoutLog(models.Model):
-    plan = models.ForeignKey(TrainingPlan, on_delete=models.CASCADE)
-    routine = models.ForeignKey(Routine, on_delete=models.PROTECT)
-    logged_at = models.DateTimeField()
+    plan_routine = models.ForeignKey(
+        PlanRoutine, 
+        on_delete=models.CASCADE, 
+        related_name="workout_logs"
+    )
+    logged_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = "workout_log"
+        db_table = "workout_log"  
 
 
 class FitnessLevel(models.Model):
