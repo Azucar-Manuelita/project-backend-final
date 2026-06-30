@@ -1,4 +1,5 @@
 import gym_core.repositories.user_repository as user_repository
+from rest_framework.authtoken.models import Token
 import hashlib
 
 def valid_lenght(password):
@@ -39,24 +40,27 @@ def valid_password(password):
 def hash_password(password):
     return hashlib.sha512(password.encode()).hexdigest()
 
-def existence_user(email, username):
-    if user_repository.check_user(username):
-        return {'Failure': True, 'message': 'El nombre de usuario ya esta en uso'}
+def existence_user(email):
     if user_repository.get_user_by_correo(email):
         return {'Failure': True, 'message': 'El correo electronico ya esta en uso'}
     return {'Failure': False}
 
-def register_user(email, username, password):
+def register_user(email, password):
     if not valid_password(password)['success']:
         return {'success': False, 'message': valid_password(password)['message']}
-    if existence_user(username, email)['Failure']:
-        return {'success': False, 'message': existence_user(username, email)['message']}
+    if existence_user(email)['Failure']:
+        return {'success': False, 'message': existence_user(email)['message']}
     password_hash = hash_password(password)
-    user_repository.register_user(email, username, password_hash)
-    return {'success': True, 'message': 'Usuario registrado exitosamente'}
+    user_repository.register_user(email, password_hash)
+    token, created = Token.objects.get_or_create(user=user_repository.get_user_by_correo(email))
+    return {'success': True, 'message': 'Usuario registrado exitosamente', 'token': token.key}
 
-def authenticate_user(user, password):
-    if user_repository.check_user(user) is None:
+def authenticate_user(email, password):
+    if user_repository.get_user_by_correo(email) is None:
         return {'success': False, 'message': 'Usuario no encontrado'}
     password_hash = hash_password(password)
-    return {'success': user_repository.check_password(user, password_hash), 'message': 'Autenticacion exitosa' if user_repository.check_password(user, password_hash) else 'Contraseña incorrecta'}
+    if user_repository.check_password(user_repository.get_user_by_correo(email), password_hash):
+        token, created = Token.objects.get_or_create(user=user_repository.get_user_by_correo(user.email))
+        return {'success': True, 'message': 'Autenticacion exitosa', 'token': token.key}
+    return {'success': False, 'message': 'Contraseña incorrecta'}
+
