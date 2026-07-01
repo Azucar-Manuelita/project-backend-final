@@ -1,4 +1,13 @@
-from gym_core.models import GymUser, Goal, Limitation, UserLimitation, TrainingPlan, UserAreaFitnessLevel
+from gym_core.models import (
+    GymUser,
+    Goal,
+    Limitation,
+    UserLimitation,
+    TrainingPlan,
+    UserAreaFitnessLevel,
+    MuscularArea,
+    FitnessLevel,
+)
 
 def register_user(correo, username, password_hash):
     user = GymUser(email=correo, username=username, password=password_hash)
@@ -20,6 +29,12 @@ def get_user_by_username(username):
         return GymUser.objects.get(username=username)
     except GymUser.DoesNotExist:
         return None
+
+def get_user_by_id(user_id: int) -> GymUser | None:
+    return GymUser.objects.filter(pk=user_id).first()
+
+def get_goal_by_id(goal_id: int) -> Goal | None:
+    return Goal.objects.filter(pk=goal_id).first()
 
 def check_user(user):
     if get_user_by_correo(user):
@@ -69,3 +84,16 @@ def get_user_profile_data(user_id: int):
         "user_limitations": user_limitations,
         "fitness_levels": fitness_levels,
     }
+
+def upsert_user_area_level(
+    user: GymUser, area: MuscularArea, level: FitnessLevel
+) -> UserAreaFitnessLevel:
+    obj, _created = UserAreaFitnessLevel.objects.update_or_create(
+        user=user,
+        muscular_area=area,
+        defaults={"fitness_level": level},
+    )
+    return obj
+
+def user_has_area_levels(user: GymUser) -> bool:
+    return UserAreaFitnessLevel.objects.filter(user=user).exists()
