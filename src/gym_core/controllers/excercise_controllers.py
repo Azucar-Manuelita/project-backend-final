@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -97,3 +98,17 @@ def regenerate_plan_routines(request):
 
     output = excercise_serializers.TrainingPlanSerializer(result["data"])
     return Response({"code": 200, "data": output.serialize()})
+
+
+@api_view(["GET"])
+def exercise_detail(request, exercise_id):
+    plan_routine_id = int(request.query_params.get("plan_routine_id"))
+
+    detail_data = excercise_services.get_exercise_detail_service(
+        user=request.user,
+        exercise_id=exercise_id,
+        plan_routine_id=plan_routine_id,
+    )
+
+    output = excercise_serializers.ExerciseDetailSerializer(detail_data)
+    return Response({"code": 200, "data": output.serialize()}, status=status.HTTP_200_OK)

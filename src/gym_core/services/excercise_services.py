@@ -1,3 +1,5 @@
+from django.core.exceptions import ObjectDoesNotExist
+
 from gym_core.models import GymUser, TrainingPlan, UserAreaFitnessLevel
 
 from gym_core.repositories import user_repository as user_repo
@@ -156,3 +158,41 @@ def regenerate_plan_routines(user_id: int, plan_id: int) -> dict:
 
     except ValueError as e:
         return {"success": False, "message": str(e)}
+
+
+
+def get_exercise_detail_service(user: GymUser, exercise_id: int, plan_routine_id: int) -> dict:
+
+    plan_routine = exercise_repo.get_plan_routine_by_id(plan_routine_id)
+
+    if plan_routine.plan.user_id != user.id:
+        raise ObjectDoesNotExist("La sesión de entrenamiento no existe")
+
+    routine_exercise = exercise_repo.get_routine_exercise_detail(
+        plan_routine.routine_id, exercise_id
+    )
+
+    if exercise_repo.exercise_is_excluded_for_user(exercise_id, user.id):
+        raise ObjectDoesNotExist("El ejercicio no existe")
+
+    exercise = routine_exercise.exercise
+    level_entry = exercise_repo.get_user_area_fitness_level(
+        user.id, exercise.muscular_area_id
+    )
+
+    series = routine_exercise.series
+    repetitions = routine_exercise.repetitions
+
+    if level_entry:
+        fitness_level = level_entry.fitness_level
+        series = round(series * fitness_level.series_multiplier)
+        repetitions = round(repetitions * fitness_level.repetitions_multiplier)
+
+    machine_name = exercise.machine.name if exercise.machine else None
+
+    return {
+        "exercise": exercise,
+        "series": series,
+        "repetitions": repetitions,
+        "machine_name": machine_name,
+    }
