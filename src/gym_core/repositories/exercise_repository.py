@@ -7,6 +7,9 @@ from gym_core.models import (
     Routine,
     RoutineExercise,
     FitnessLevel,
+    PlanRoutine,
+    ExerciseLimitation,
+    UserAreaFitnessLevel,
 )
 
 def save_exercise(name: str, description: str, muscular_area: MuscularArea, machine: Machine):
@@ -45,4 +48,48 @@ def get_exercises_from_routines(routines: list[Routine]):
         RoutineExercise.objects
         .select_related("exercise", "exercise__muscular_area", "routine")
         .filter(routine__in=routines)
+    )
+
+
+def get_plan_routine_by_id(plan_routine_id: int) -> PlanRoutine:
+
+    return (
+        PlanRoutine.objects
+        .select_related("plan", "plan__user", "routine")
+        .get(pk=plan_routine_id)
+    )
+
+
+def get_routine_exercise_detail(routine_id: int, exercise_id: int) -> RoutineExercise:
+
+    return (
+        RoutineExercise.objects
+        .select_related(
+            "exercise",
+            "exercise__muscular_area",
+            "exercise__machine",
+        )
+        .get(routine_id=routine_id, exercise_id=exercise_id)
+    )
+
+
+def exercise_is_excluded_for_user(exercise_id: int, user_id: int) -> bool:
+
+    return (
+        ExerciseLimitation.objects
+        .filter(
+            exercise_id=exercise_id,
+            limitation__userlimitation__user_id=user_id,
+        )
+        .exists()
+    )
+
+
+def get_user_area_fitness_level(user_id: int, muscular_area_id: int) -> UserAreaFitnessLevel | None:
+
+    return (
+        UserAreaFitnessLevel.objects
+        .select_related("fitness_level")
+        .filter(user_id=user_id, muscular_area_id=muscular_area_id)
+        .first()
     )

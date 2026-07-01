@@ -49,3 +49,20 @@ class TrainingPlanSerializer:
             "start_date": self._obj.start_date.isoformat(),
             "status": self._obj.status,
         }
+
+
+class ExerciseDetailSerializer:
+
+    def __init__(self, detail_data: dict):
+        self._data = detail_data
+
+    def serialize(self) -> dict:
+        exercise = self._data["exercise"]
+        return {
+            "id": exercise.id,
+            "name": exercise.name,
+            "description": exercise.description,
+            "machine_name": self._data["machine_name"],
+            "series": self._data["series"],
+            "repetitions": self._data["repetitions"],
+        }
