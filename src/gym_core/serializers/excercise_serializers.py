@@ -66,3 +66,21 @@ class ExerciseDetailSerializer:
             "series": self._data["series"],
             "repetitions": self._data["repetitions"],
         }
+    
+
+class SessionExerciseListSerializer:
+
+    def __init__(self, session_exercises: list[dict]):
+        self._data = session_exercises
+
+    def serialize(self) -> list[dict]:
+        return [
+            {
+                "id": item["exercise"].id,
+                "name": item["exercise"].name,
+                "machine_name": item["machine_name"],
+                "series": item["series"],
+                "repetitions": item["repetitions"],
+            }
+            for item in self._data
+        ]

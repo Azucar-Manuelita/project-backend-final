@@ -93,3 +93,15 @@ def get_user_area_fitness_level(user_id: int, muscular_area_id: int) -> UserArea
         .filter(user_id=user_id, muscular_area_id=muscular_area_id)
         .first()
     )
+
+def get_routine_exercises_by_routine_id(routine_id: int):
+
+    return (
+        RoutineExercise.objects
+        .select_related(
+            "exercise",
+            "exercise__muscular_area",
+            "exercise__machine",
+        )
+        .filter(routine_id=routine_id)
+    )
