@@ -112,3 +112,13 @@ def exercise_detail(request, exercise_id):
 
     output = excercise_serializers.ExerciseDetailSerializer(detail_data)
     return Response({"code": 200, "data": output.serialize()}, status=status.HTTP_200_OK)
+
+@api_view(["GET"])
+def session_exercises_list(request, plan_routine_id):
+    session_exercises = excercise_services.get_session_exercises_list_service(
+        user=request.user,
+        plan_routine_id=plan_routine_id,
+    )
+
+    output = excercise_serializers.SessionExerciseListSerializer(session_exercises)
+    return Response({"code": 200, "data": output.serialize()}, status=status.HTTP_200_OK)
