@@ -1,20 +1,9 @@
 from gym_core.models import MuscularArea, Machine, Exercise
 
 
-"""def save_exercise(name: str, description: str, muscular_area: str , machine: str):
-    return Exercise.objects.create(
-        name=name,
-        description=description,
-        muscular_area=MuscularArea.objects.get(name=muscular_area),
-        machine=Machine.objects.get(name=machine)
-    )"""
-
 def save_exercise(name: str, description: str, muscular_area: str, machine: str):
-    try:
-        area_obj = MuscularArea.objects.get(name=muscular_area)
-        machine_obj = Machine.objects.get(name=machine)
-    except (MuscularArea.DoesNotExist, Machine.DoesNotExist):
-        return None
+    area_obj = MuscularArea.objects.filter(name=muscular_area).first()
+    machine_obj = Machine.objects.filter(name=machine).first()
     return Exercise.objects.create(
         name=name,
         description=description,
@@ -26,7 +15,7 @@ def get_exercise_by_name(name: str):
     return Exercise.objects.filter(name=name).first()
 
 def get_exercises_by_machine(machine: str):
-    return Exercise.objects.filter(machine=Machine.objects.get(name=machine))
+    return Exercise.objects.filter(machine=Machine.objects.filter(name=machine).first())
 
 def save_machine(name: str):
     return Machine.objects.create(name=name)

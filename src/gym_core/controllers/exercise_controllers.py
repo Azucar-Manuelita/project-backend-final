@@ -1,10 +1,12 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view , permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import IsAdminUser
 
 from gym_core.services import exercise_services
 from gym_core.serializers import exercise_serializers
 
 @api_view(['POST'])
+#@permission_classes([IsAdminUser])
 def create_exercise(request):
     serializer = exercise_serializers.exercise_serializer(data=request.data)
     if serializer.is_valid():
@@ -21,6 +23,7 @@ def create_exercise(request):
         return Response(serializer.errors, status=400)
     
 @api_view(['POST'])
+#@permission_classes([IsAdminUser])
 def create_machine(request):
     serializer = exercise_serializers.machine_serializer(data=request.data)
     if serializer.is_valid():
