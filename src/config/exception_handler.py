@@ -8,8 +8,9 @@ def global_exception_handler(exc, context):
     response = exception_handler(exc, context)
 
     if response is None and isinstance(exc, ObjectDoesNotExist):
+        detail = str(exc) or "El plan activo solicitado no existe."
         return Response(
-            {"detail": "El plan activo solicitado no existe."},
+            {"detail": detail},
             status=status.HTTP_404_NOT_FOUND
         )
 
