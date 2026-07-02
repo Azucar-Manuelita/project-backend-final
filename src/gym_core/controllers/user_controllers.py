@@ -37,3 +37,16 @@ def get_user_profile_by_admin(request, user_id: int):
 
     serializer = user_serializers.UserProfileSerializer(result["data"])
     return Response({"code": 200, "data": serializer.serialize()})
+
+@api_view(["GET"])
+def get_users_list_by_admin(request):
+
+    if not request.user.is_staff:
+        return Response(
+            {"code": 403, "error": "Only administrators can view the user database"},
+            status=403,
+        )
+
+    result = user_services.get_all_users_summary_service()
+
+    return Response({"code": 200, "data": result["data"]})
