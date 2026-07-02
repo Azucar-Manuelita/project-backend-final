@@ -1,5 +1,56 @@
-from django.core.exceptions import ObjectDoesNotExist
+import gym_core.repositories.user_repository as user_repository
+from rest_framework.authtoken.models import Token
 
+def search_user(username):
+    user = user_repository.get_user_by_username(username)
+    if user:
+        return {'success': True, 'user': user}
+    return {'success': False, 'message': 'Usuario no encontrado'}
+
+def show_limitations():
+    limitations = user_repository.get_limitations()
+    if limitations:
+        return {'success': True, 'message': limitations}
+    return {'success': False, 'message': 'Limitaciones no encontradas'}
+
+def show_areas():
+    areas = user_repository.get_muscular_areas()
+    if areas:
+        return {'success': True, 'message': areas}
+    return {'success': False, 'message': 'areas a evaluar no encontradas'}
+
+def token_to_user(token):
+    user_token = Token.objects.select_related('user').filter(key=token).first()
+    if user_token:
+        user=user_token.user
+        return {'success': True, 'user': user}
+    return {'success': False, 'message': "No existe un user con este token"}
+
+def show_last_training_data(token):
+    valid_token = token_to_user(token)
+    if valid_token['success']:
+        user = valid_token['user']
+        limitations = user_repository.get_limitations_by_user(user.id)
+        areas = user_repository.get_areas_info_by_user(user.id)
+        data = {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "age": user.age,
+            "weight": user.weight,
+            "limitations": limitations,
+            "areas": areas
+        }
+        return {'success': True, 'data': data}
+    return {'success': False, 'error': valid_token['message']}
+
+def update_user_info(user, weight, age, limitations, areas):
+    user_repository.register_user_adittions(user, weight, age)
+    user_repository.update_user_limitations(user.id, limitations)
+    user_repository.update_user_areas(user.id, areas)
+    return {'success': True, 'message': 'Usuario actualizado exitosamente'}
+
+from django.core.exceptions import ObjectDoesNotExist
 from gym_core.repositories import user_repository
 
 
@@ -58,7 +109,6 @@ def get_user_profile_service(user_id: int) -> dict:
     }
 
     return {"success": True, "data": profile_data}
-
 
 def get_user_profile_by_admin_service(target_user_id: int) -> dict:
 

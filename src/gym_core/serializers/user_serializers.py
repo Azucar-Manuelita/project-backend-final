@@ -1,14 +1,46 @@
 from rest_framework import serializers
 
 class User_Serializer(serializers.Serializer):
-    email = serializers.EmailField()
-    username = serializers.CharField(max_length=100)
-    password = serializers.CharField(max_length=100, write_only=True)
+    email = serializers.EmailField(required=True)
+    username = serializers.CharField(required=True, max_length=100)
+    password = serializers.CharField(required=True, max_length=100, write_only=True)
 
-class User_login_serializer(serializers.Serializer):
-    username = serializers.CharField(max_length=100)
-    password = serializers.CharField(max_length=100, write_only=True)
+class User_login_Serializer(serializers.Serializer):
+    username = serializers.CharField(required=True, max_length=100)
+    password = serializers.CharField(required=True, max_length=100, write_only=True)
 
+class UserProfileUpdateSerializer(serializers.Serializer):
+    age = serializers.IntegerField(
+        required=True,
+        error_messages={
+            'required': "El campo 'age' es requerido.",
+            'invalid': "El campo 'age' debe ser un número entero válido."
+        }
+    )
+
+    weight = serializers.FloatField(
+        required=True,
+        error_messages={
+            'required': "El campo 'weight' es requerido.",
+            'invalid': "El campo 'weight' debe ser un número decimal válido."
+        }
+    )
+
+    limitations = serializers.ListField(
+        child=serializers.CharField(), 
+        required=False, 
+        default=[]
+    )
+
+    areas = serializers.ListField(
+        child=serializers.DictField(),
+        required=True,
+        allow_empty=False,
+        error_messages={
+            'required': "El campo 'areas' es requerido y no puede estar vacío.",
+            'empty': "El campo 'areas' es requerido y no puede estar vacío."
+        }
+    )
 
 class UserProfileSerializer:
 
