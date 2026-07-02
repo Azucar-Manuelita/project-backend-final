@@ -21,3 +21,12 @@ def create_machine(name: str):
     if exists_machine(name):
         return False
     return exercise_repository.save_machine(name)
+
+def get_exercises_by_machine(machine_name: str):
+    return exercise_repository.get_exercises_by_machine(machine_name)
+
+def get_machines():
+    return exercise_repository.get_machines()
+
+def get_exercises():
+    return exercise_repository.get_exercises()

@@ -22,3 +22,10 @@ class machine_serializer(serializers.Serializer):
         if not no_invalid_chars(value):
             raise serializers.ValidationError("El nombre contiene caracteres inválidos.")
         return value
+    
+
+class exercise_response_serializer(serializers.Serializer):
+    name = serializers.CharField()
+    description = serializers.CharField()
+    area = serializers.CharField(source='muscular_area.name') 
+    machine = serializers.CharField(source='machine.name')

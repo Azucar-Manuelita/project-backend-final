@@ -32,3 +32,21 @@ def create_machine(request):
             return Response({"error": "Failed to create machine. It may already exist."}, status=400)
     else:
         return Response(serializer.errors, status=400)
+
+@api_view(['GET'])
+def get_exercises_by_machine(request, machine_name):
+    exercises = exercise_services.get_exercises_by_machine(machine_name)
+    serializer = exercise_serializers.exercise_response_serializer(exercises, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def get_machines(request):
+    machines = exercise_services.get_machines()
+    serializer = exercise_serializers.machine_serializer(machines, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def get_exercises(request):
+    exercises = exercise_services.get_exercises()
+    serializer = exercise_serializers.exercise_response_serializer(exercises, many=True)
+    return Response(serializer.data)
