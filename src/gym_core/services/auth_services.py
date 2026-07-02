@@ -41,26 +41,27 @@ def hash_password(password):
     return hashlib.sha512(password.encode()).hexdigest()
 
 def existence_user(email):
-    if user_repository.get_user_by_correo(email):
-        return {'Failure': True, 'message': 'El correo electronico ya esta en uso'}
+    if user_repository.check_user(email):
+        return {'Failure': True, 'message': 'El correo electronico o nombre de usuario ya esta en uso'}
     return {'Failure': False}
 
-def register_user(email, password):
+def register_user(email, username, password):
     if not valid_password(password)['success']:
         return {'success': False, 'message': valid_password(password)['message']}
     if existence_user(email)['Failure']:
         return {'success': False, 'message': existence_user(email)['message']}
     password_hash = hash_password(password)
-    user_repository.register_user(email, password_hash)
+    user_repository.register_user(email, username, password_hash)
     token, created = Token.objects.get_or_create(user=user_repository.get_user_by_correo(email))
     return {'success': True, 'message': 'Usuario registrado exitosamente', 'token': token.key}
 
-def authenticate_user(email, password):
-    if user_repository.get_user_by_correo(email) is None:
+def authenticate_user(user, password):
+    if user_repository.check_user(user) is None:
         return {'success': False, 'message': 'Usuario no encontrado'}
     password_hash = hash_password(password)
-    if user_repository.check_password(user_repository.get_user_by_correo(email), password_hash):
-        token, created = Token.objects.get_or_create(user=user_repository.get_user_by_correo(user.email))
-        return {'success': True, 'message': 'Autenticacion exitosa', 'token': token.key}
+    user = user_repository.check_user(user)
+    if user_repository.check_password(user, password_hash):
+        token, created = Token.objects.get_or_create(user=user)
+        return {'success': True, 'message': 'Autenticacion exitosa', 'token': token.key, 'staff': user.is_staff}
     return {'success': False, 'message': 'Contraseña incorrecta'}
 

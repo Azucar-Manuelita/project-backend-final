@@ -71,6 +71,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'config.exception_handler.global_exception_handler',
+}
+
+
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
