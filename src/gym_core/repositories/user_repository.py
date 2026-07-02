@@ -97,3 +97,10 @@ def upsert_user_area_level(
 
 def user_has_area_levels(user: GymUser) -> bool:
     return UserAreaFitnessLevel.objects.filter(user=user).exists()
+
+def get_all_users_with_plans() -> list:
+    return list(
+        GymUser.objects
+        .prefetch_related("trainingplan_set")
+        .order_by("id")
+    )
