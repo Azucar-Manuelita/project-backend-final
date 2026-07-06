@@ -5,7 +5,38 @@ from gym_core.models import GymUser, TrainingPlan, UserAreaFitnessLevel
 from gym_core.repositories import user_repository as user_repo
 from gym_core.repositories import exercise_repository as exercise_repo
 from gym_core.repositories import workout_repository as workout_repo
+from gym_core.repositories import exercise_repository
 
+def exists_machine(name: str) -> bool:
+    return exercise_repository.get_machine_by_name(name) is not None
+
+def is_exercise_in_machine(exercise_name: str, machine_name: str) -> bool:
+    exercises = exercise_repository.get_exercises_by_machine(machine_name)
+    for exercise in exercises:
+        if exercise.name == exercise_name:
+            return True
+    return False
+
+def create_exercise(name: str, description: str, area: str, machine: str):
+    if not exists_machine(machine):
+        return False
+    if is_exercise_in_machine(name, machine):
+        return False
+    return exercise_repository.save_exercise(name, description, area, machine)
+
+def create_machine(name: str):
+    if exists_machine(name):
+        return False
+    return exercise_repository.save_machine(name)
+
+def get_exercises_by_machine(machine_name: str):
+    return exercise_repository.get_exercises_by_machine(machine_name)
+
+def get_machines():
+    return exercise_repository.get_machines()
+
+def get_exercises():
+    return exercise_repository.get_exercises()
 
 def _validate_user_exists(user: GymUser | None):
     if user is None:

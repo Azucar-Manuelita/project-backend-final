@@ -12,22 +12,33 @@ from gym_core.models import (
     UserAreaFitnessLevel,
 )
 
-def save_exercise(name: str, description: str, muscular_area: MuscularArea, machine: Machine):
+def save_exercise(name: str, description: str, muscular_area: str, machine: str):
+    area_obj = MuscularArea.objects.filter(name=muscular_area).first()
+    machine_obj = Machine.objects.filter(name=machine).first()
     return Exercise.objects.create(
         name=name,
         description=description,
-        muscular_area=muscular_area,
-        machine=machine
+        muscular_area=area_obj,
+        machine=machine_obj
     )
 
-def get_exercise_by_name(name: str) -> Exercise:
-    return Exercise.objects.get(name=name)
+def get_exercise_by_name(name: str):
+    return Exercise.objects.filter(name=name).first()
 
-def save_machine(name: str) -> Machine:
+def get_exercises_by_machine(machine: str):
+    return Exercise.objects.filter(machine=Machine.objects.filter(name=machine).first())
+
+def save_machine(name: str):
     return Machine.objects.create(name=name)
 
-def get_machine_by_name(name: str) -> Machine:
-    return Machine.objects.get(name=name)
+def get_machine_by_name(name: str):
+    return Machine.objects.filter(name=name).first()
+
+def get_machines():
+    return Machine.objects.all()
+
+def get_exercises():
+    return Exercise.objects.all()
 
 def get_area_by_id(area_id: int) -> MuscularArea | None:
     return MuscularArea.objects.filter(pk=area_id).first()
