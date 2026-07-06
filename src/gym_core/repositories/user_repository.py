@@ -1,17 +1,4 @@
-<<<<<<< HEAD
-from gym_core.models import GymUser, Goal, Limitation, UserLimitation, TrainingPlan, UserAreaFitnessLevel, MuscularArea
-=======
-from gym_core.models import (
-    GymUser,
-    Goal,
-    Limitation,
-    UserLimitation,
-    TrainingPlan,
-    UserAreaFitnessLevel,
-    MuscularArea,
-    FitnessLevel,
-)
->>>>>>> 69ba2ebf307a1a2f24e48d17d956a7305c2080be
+from gym_core.models import GymUser, Goal, Limitation, UserLimitation, TrainingPlan, UserAreaFitnessLevel, MuscularArea, FitnessLevel
 
 def register_user(correo, username, password_hash):
     user = GymUser(email=correo, username=username, password=password_hash, is_staff=False)
