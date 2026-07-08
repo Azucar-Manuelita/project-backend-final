@@ -5,7 +5,7 @@ import gym_core.services.auth_services as auth_services
 
 @api_view(['POST'])
 def create_user(request):
-    serializer = serializers.User_Serializer(data=request.data)
+    serializer = serializers.UserSerializer(data=request.data)
 
     if serializer.is_valid():
         result = auth_services.register_user(serializer.validated_data['email'], serializer.validated_data['username'], serializer.validated_data['password'])
@@ -19,7 +19,7 @@ def create_user(request):
     
 @api_view(['POST'])
 def login(request):
-    serializer = serializers.User_login_Serializer(data=request.data)
+    serializer = serializers.UserLoginSerializer(data=request.data)
 
     if serializer.is_valid():
         result = auth_services.authenticate_user(serializer.validated_data['username'], serializer.validated_data['password'])
