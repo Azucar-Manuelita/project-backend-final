@@ -8,7 +8,7 @@ from rest_framework import status
 
 @api_view(['POST'])
 def create_exercise(request):
-    serializer = exercise_serializers.exercise_serializer(data=request.data)
+    serializer = exercise_serializers.ExerciseSerializer(data=request.data)
     if serializer.is_valid():
         name = serializer.validated_data['name']
         description = serializer.validated_data['description']
@@ -25,7 +25,7 @@ def create_exercise(request):
 
 @api_view(['POST'])
 def create_machine(request):
-    serializer = exercise_serializers.machine_serializer(data=request.data)
+    serializer = exercise_serializers.MachineSerializer(data=request.data)
     if serializer.is_valid():
         name = serializer.validated_data['name']
 
@@ -40,21 +40,21 @@ def create_machine(request):
 @api_view(['GET'])
 def get_exercises_by_machine(request, machine_name):
     exercises = exercise_services.get_exercises_by_machine(machine_name)
-    serializer = exercise_serializers.exercise_response_serializer(exercises, many=True)
+    serializer = exercise_serializers.ExerciseResponseSerializer(exercises, many=True)
     return Response(serializer.data)
 
 
 @api_view(['GET'])
 def get_machines(request):
     machines = exercise_services.get_machines()
-    serializer = exercise_serializers.machine_serializer(machines, many=True)
+    serializer = exercise_serializers.MachineSerializer(machines, many=True)
     return Response(serializer.data)
 
 
 @api_view(['GET'])
 def get_exercises(request):
     exercises = exercise_services.get_exercises()
-    serializer = exercise_serializers.exercise_response_serializer(exercises, many=True)
+    serializer = exercise_serializers.ExerciseResponseSerializer(exercises, many=True)
     return Response(serializer.data)
 
 
