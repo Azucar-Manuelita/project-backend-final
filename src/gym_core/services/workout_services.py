@@ -23,6 +23,7 @@ def get_current_workout_plan(user_id: int) -> dict:
 
         sessions_detail.append(
             {
+                "plan_routine_id": plan_routine.id,
                 "session_number": plan_routine.session_number,
                 "routine_name": plan_routine.routine.name,
                 "is_completed": is_completed,
@@ -42,4 +43,28 @@ def get_current_workout_plan(user_id: int) -> dict:
         "duration_weeks": active_plan.duration_weeks,
         "progress_percentage": progress_percentage,
         "sessions": sessions_detail,
+    }
+
+
+def toggle_session_completion(user_id: int, plan_routine_id: int) -> dict:
+    """Marca una sesión (PlanRoutine) como completada creando un WorkoutLog,
+    o la desmarca eliminando el WorkoutLog existente si ya estaba completada."""
+
+    plan_routine = workout_repository.get_plan_routine_by_id(plan_routine_id)
+
+    if plan_routine.plan.user_id != user_id:
+        raise ObjectDoesNotExist("La sesión de entrenamiento no existe")
+
+    existing_log = workout_repository.get_workout_log(plan_routine_id)
+
+    if existing_log:
+        workout_repository.delete_workout_log(existing_log)
+        is_completed = False
+    else:
+        workout_repository.create_workout_log(plan_routine)
+        is_completed = True
+
+    return {
+        "plan_routine_id": plan_routine.id,
+        "is_completed": is_completed,
     }

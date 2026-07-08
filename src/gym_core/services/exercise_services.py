@@ -5,7 +5,47 @@ from gym_core.models import GymUser, TrainingPlan, UserAreaFitnessLevel
 from gym_core.repositories import user_repository as user_repo
 from gym_core.repositories import exercise_repository as exercise_repo
 from gym_core.repositories import workout_repository as workout_repo
+from gym_core.repositories import exercise_repository
 
+def exists_machine(name: str) -> bool:
+    return exercise_repository.get_machine_by_name(name) is not None
+
+def is_exercise_in_machine(exercise_name: str, machine_name: str) -> bool:
+    exercises = exercise_repository.get_exercises_by_machine(machine_name)
+    for exercise in exercises:
+        if exercise.name == exercise_name:
+            return True
+    return False
+
+def create_exercise(name: str, description: str, area: str, machine: str):
+    if not exists_machine(machine):
+        return False
+    if is_exercise_in_machine(name, machine):
+        return False
+    return exercise_repository.save_exercise(name, description, area, machine)
+
+def create_machine(name: str):
+    if exists_machine(name):
+        return False
+    return exercise_repository.save_machine(name)
+
+def get_exercises_by_machine(machine_name: str):
+    return exercise_repository.get_exercises_by_machine(machine_name)
+
+def get_machines():
+    return exercise_repository.get_machines()
+
+def get_exercises():
+    return exercise_repository.get_exercises()
+
+def get_goals_catalog():
+    return exercise_repository.get_all_goals()
+
+def get_areas_catalog():
+    return exercise_repository.get_all_areas()
+
+def get_fitness_levels_catalog():
+    return exercise_repository.get_all_fitness_levels()
 
 def _validate_user_exists(user: GymUser | None):
     if user is None:
@@ -22,6 +62,14 @@ def _validate_goal_exists(goal):
 def _validate_available_routines(routines: list, required: int = 1):
     if len(routines) < required:
         raise ValueError("No hay rutinas disponibles para este objetivo")
+
+
+def _build_session_routines(routines: list, weekly_frequency: int, duration_weeks: int) -> list:
+    """Expande las rutinas de un objetivo a una sesión por cada semana/frecuencia
+    del plan, ciclando entre las rutinas disponibles (misma lógica que usa
+    seed_db.py para poblar PlanRoutine)."""
+    total_sessions = weekly_frequency * duration_weeks
+    return [routines[i % len(routines)] for i in range(total_sessions)]
 
 
 def apply_level_to_exercise(routine_exercise, user: GymUser) -> dict:
@@ -100,7 +148,8 @@ def generate_training_plan(
             start_date=start_date,
             status="active",
         )
-        workout_repo.bulk_create_plan_routines(plan, routines)
+        session_routines = _build_session_routines(routines, weekly_frequency, duration_weeks)
+        workout_repo.bulk_create_plan_routines(plan, session_routines)
 
         return {"success": True, "data": plan}
 
@@ -151,8 +200,9 @@ def regenerate_plan_routines(user_id: int, plan_id: int) -> dict:
         routines = exercise_repo.get_goal_routines(plan.goal)
         _validate_available_routines(routines, required=1)
 
+        session_routines = _build_session_routines(routines, plan.weekly_frequency, plan.duration_weeks)
         workout_repo.delete_plan_routines(plan)
-        workout_repo.bulk_create_plan_routines(plan, routines)
+        workout_repo.bulk_create_plan_routines(plan, session_routines)
 
         return {"success": True, "data": plan}
 
