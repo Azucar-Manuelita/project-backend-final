@@ -57,6 +57,22 @@ class RegeneratePlanRoutinesSerializer(serializers.Serializer):
     plan_id = serializers.IntegerField()
 
 
+class GoalCatalogSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    description = serializers.CharField()
+
+
+class AreaCatalogSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+
+
+class FitnessLevelCatalogSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+
+
 class UserAreaFitnessLevelSerializer:
 
     def __init__(self, level_obj):

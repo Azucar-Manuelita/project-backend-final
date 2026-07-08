@@ -1,4 +1,4 @@
-from rest_framework.decorators import api_view , permission_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from gym_core.services import exercise_services
@@ -6,10 +6,7 @@ from gym_core.serializers import exercise_serializers
 from rest_framework import status
 
 
-
-
 @api_view(['POST'])
-#@permission_classes([IsAdminUser])
 def create_exercise(request):
     serializer = exercise_serializers.exercise_serializer(data=request.data)
     if serializer.is_valid():
@@ -17,21 +14,21 @@ def create_exercise(request):
         description = serializer.validated_data['description']
         area = serializer.validated_data['area']
         machine = serializer.validated_data['machine']
-        
+
         if exercise_services.create_exercise(name, description, area, machine):
             return Response({"message": "Exercise created successfully."}, status=201)
         else:
             return Response({"error": "Failed to create exercise. It may already exist or the machine may not exist."}, status=400)
     else:
         return Response(serializer.errors, status=400)
-    
+
+
 @api_view(['POST'])
-#@permission_classes([IsAdminUser])
 def create_machine(request):
     serializer = exercise_serializers.machine_serializer(data=request.data)
     if serializer.is_valid():
         name = serializer.validated_data['name']
-        
+
         if exercise_services.create_machine(name):
             return Response({"message": "Machine created successfully."}, status=201)
         else:
@@ -39,11 +36,13 @@ def create_machine(request):
     else:
         return Response(serializer.errors, status=400)
 
+
 @api_view(['GET'])
 def get_exercises_by_machine(request, machine_name):
     exercises = exercise_services.get_exercises_by_machine(machine_name)
     serializer = exercise_serializers.exercise_response_serializer(exercises, many=True)
     return Response(serializer.data)
+
 
 @api_view(['GET'])
 def get_machines(request):
@@ -51,11 +50,34 @@ def get_machines(request):
     serializer = exercise_serializers.machine_serializer(machines, many=True)
     return Response(serializer.data)
 
+
 @api_view(['GET'])
 def get_exercises(request):
     exercises = exercise_services.get_exercises()
     serializer = exercise_serializers.exercise_response_serializer(exercises, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def get_goals_catalog(request):
+    goals = exercise_services.get_goals_catalog()
+    serializer = exercise_serializers.GoalCatalogSerializer(goals, many=True)
+    return Response({"code": 200, "data": serializer.data})
+
+
+@api_view(['GET'])
+def get_areas_catalog(request):
+    areas = exercise_services.get_areas_catalog()
+    serializer = exercise_serializers.AreaCatalogSerializer(areas, many=True)
+    return Response({"code": 200, "data": serializer.data})
+
+
+@api_view(['GET'])
+def get_fitness_levels_catalog(request):
+    levels = exercise_services.get_fitness_levels_catalog()
+    serializer = exercise_serializers.FitnessLevelCatalogSerializer(levels, many=True)
+    return Response({"code": 200, "data": serializer.data})
+
 
 def _error_status_code(message: str) -> int:
     return 404 if "no existe" in message.lower() else 400
@@ -69,7 +91,7 @@ def classify_user(request):
         return Response({"code": 400, "error": "Campos requeridos"})
 
     user_id = request.user.id
-    result = exercise_serializers.classify_user(
+    result = exercise_services.classify_user(
         user_id,
         serializer.validated_data["area_id"],
         serializer.validated_data["level_id"],
@@ -163,6 +185,7 @@ def exercise_detail(request, exercise_id):
 
     output = exercise_serializers.ExerciseDetailSerializer(detail_data)
     return Response({"code": 200, "data": output.serialize()}, status=status.HTTP_200_OK)
+
 
 @api_view(["GET"])
 def session_exercises_list(request, plan_routine_id):

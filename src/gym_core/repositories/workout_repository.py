@@ -1,4 +1,4 @@
-from gym_core.models import TrainingPlan, PlanRoutine, GymUser, Goal, Routine
+from gym_core.models import TrainingPlan, PlanRoutine, GymUser, Goal, Routine, WorkoutLog
 
 
 def get_active_plan_by_user_id(user_id):
@@ -18,6 +18,22 @@ def get_plan_sessions_with_completion(plan_id):
         .prefetch_related("workout_logs")
         .order_by("session_number")
     )
+
+def get_plan_routine_by_id(plan_routine_id: int) -> PlanRoutine:
+    return (
+        PlanRoutine.objects
+        .select_related("plan", "plan__user", "routine")
+        .get(pk=plan_routine_id)
+    )
+
+def get_workout_log(plan_routine_id: int) -> WorkoutLog | None:
+    return WorkoutLog.objects.filter(plan_routine_id=plan_routine_id).first()
+
+def create_workout_log(plan_routine: PlanRoutine) -> WorkoutLog:
+    return WorkoutLog.objects.create(plan_routine=plan_routine)
+
+def delete_workout_log(workout_log: WorkoutLog):
+    workout_log.delete()
 
 def get_plan_by_id(plan_id: int) -> TrainingPlan | None:
     return TrainingPlan.objects.filter(pk=plan_id).first()

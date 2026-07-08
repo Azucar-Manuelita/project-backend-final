@@ -49,6 +49,15 @@ def get_level_by_id(level_id: int) -> FitnessLevel | None:
 def get_goal_by_id(goal_id: int) -> Goal | None:
     return Goal.objects.filter(pk=goal_id).first()
 
+def get_all_goals() -> list[Goal]:
+    return list(Goal.objects.all())
+
+def get_all_areas() -> list[MuscularArea]:
+    return list(MuscularArea.objects.all())
+
+def get_all_fitness_levels() -> list[FitnessLevel]:
+    return list(FitnessLevel.objects.all())
+
 def get_goal_routines(goal: Goal) -> list[Routine]:
     return list(
         Routine.objects.filter(goalroutine__goal=goal)
